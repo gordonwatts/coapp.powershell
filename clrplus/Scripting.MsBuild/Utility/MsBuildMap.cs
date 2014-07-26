@@ -66,11 +66,14 @@ namespace ClrPlus.Scripting.MsBuild.Utility {
                     foreach (var t in tasks) {
                         var properties = t.GetProperties().Where(each => !_ignoreProperties.Contains(each.Name)).ToArray();
                         if (!_taskClasses.ContainsKey(t.Name)) {
+                            Func<PropertyInfo, bool> isRequired = each => each.GetCustomAttributes(true).Any(attr => attr.GetType() == typeof(RequiredAttribute));
+                            Func<PropertyInfo, bool> isOutput = each => each.GetCustomAttributes(true).Any(attr => attr.GetType() == typeof(OutputAttribute));
+                            Func<PropertyInfo, bool> isInput = each => !isOutput(each);
                                 _taskClasses.AddOrSet(t.Name.ToLower(), new MSBuildTaskType {
                                 TaskClass = t,
-                                Outputs = properties.Where(each => each.GetCustomAttributes(true).Any(attr => attr.GetType().Name == "OutputAttribute")).Select(each => each.Name).ToArray(),
-                                RequiredInputs = properties.Where(each => each.GetCustomAttributes(true).Any(attr => attr.GetType().Name == "RequiredAttribute")).Select(each => each.Name).ToArray(),
-                                OptionalInputs = properties.Where(each => each.GetCustomAttributes(true).All(attr => attr.GetType().Name != "OutputAttribute" && attr.GetType().Name != "RequiredAttribute")).Select(each => each.Name).ToArray()
+                                Outputs = properties.Where(each => isOutput(each)).Select(each => each.Name).ToArray(),
+                                RequiredInputs = properties.Where(each => isRequired(each) && isInput(each)).Select(each => each.Name).ToArray(),
+                                OptionalInputs = properties.Where(each => !isRequired(each) && isInput(each)).Select(each => each.Name).ToArray()
                             });
                         }
                         
