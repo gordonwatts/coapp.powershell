@@ -659,8 +659,14 @@ namespace ClrPlus.Scripting.MsBuild.Packaging {
                         Event<Progress>.Raise("Runing 'NuGet Pack'", -1, "{0}", s);
                     }
                 }
-                if (results.LastIsTerminatingError) {
-                    throw new ClrPlusException("NuGet Pack Failed");
+                if (results.LastIsTerminatingError || string.IsNullOrWhiteSpace(packageFileName)) {
+                    var errTxt = new StringBuilder();
+                    errTxt.AppendLine("NuGet pack command failed:");
+                    foreach (var l in results)
+                    {
+                        errTxt.AppendLine("    nuget pack: " + l);
+                    }
+                    throw new ClrPlusException(errTxt.ToString());
                 }
             }
             return packageFileName;
