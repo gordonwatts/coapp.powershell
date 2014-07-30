@@ -28,7 +28,8 @@ As a short-cut you can run powershell in the debugger:
 
 Notes: 
  - Show-CoAppEtcDirectory will not work unless you have installed powershell. I've only seen it necessary to uninstall the real version of CoApp tools if you get an error message about conflicting types during the import-module command.
- - It is also useful to attach "powershell.exe" as the program to run when with the CoApp.Powershell project so you can just click "debug"
+ - It is also useful to attach "powershell.exe" as the program to run when with the CoApp.Powershell project so you can just click "debug".
+     - Pro tip: Put '-NoExit -command "Import-Module .\CoApp.psd1"' as the arguments for powershell to start up a shell with everything ready to go.
 
 Suggested Workflow:
 ===================
