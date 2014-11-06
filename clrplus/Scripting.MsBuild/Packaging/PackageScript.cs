@@ -190,6 +190,8 @@ namespace ClrPlus.Scripting.MsBuild.Packaging {
             // Keep track of any user custom tasks that should be defined.
             // TODO: the CustomTasks.Add is wrong below. It gets called three times, rather than just once for a single input.
             //       But I do not understand how to link it to the CUustomTask list above there.
+            // TODO: Make sure this runs before targets (how!?) so that it gets a chance to initalize and send info to
+            //       the legal task list in MsBuildMap.cs.
             nugetView.AddChildRoute(
                 "customtasks".MapTo(NugetPackage.CustomTasks, 
                 new[] { 
