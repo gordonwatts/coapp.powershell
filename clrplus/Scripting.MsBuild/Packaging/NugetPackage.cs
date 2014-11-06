@@ -48,7 +48,6 @@ namespace ClrPlus.Scripting.MsBuild.Packaging {
         {
             get
             {
-                string Name = "name";
                 yield return "name".MapTo(() => TaskName, v => TaskName = (string) v);
                 yield return "DLL".MapTo(() => TaskDLLPath, v => TaskDLLPath = (string) v);
             }
