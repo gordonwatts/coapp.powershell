@@ -360,12 +360,22 @@ namespace ClrPlus.Scripting.MsBuild.Packaging {
                     usingTask.Condition = "'$(DesignTimeBuild)' != 'true' AND ('$(NugetMsBuildExtensionLoaded)' == '' OR '$(NugetMsBuildExtensionLoaded)' == 'false')";
                 }
 
-                // Register any custom tasks requested.
+                // Register any custom tasks requested. Add unique files
                 // TODO: remove the Where clause when we figure out how to have a clean set of tasks here.
+                var uniqueCustomTaskDLLs = new HashSet<string>();
                 foreach (var t in CustomTasks.Where(tinfo => tinfo.TaskName != null))
                 {
+                    if (!File.Exists(t.TaskDLLPath))
+                    {
+                        Event<Error>.Raise("BadCustomDLLFile", "Custom Task DLL file {0} was not found.", t.TaskDLLPath);
+                    }
                     var usingTask = Targets.Value.Xml.AddUsingTask(t.TaskName, string.Format("$(NuGet-NativeExtensionPath)\\{0}", Path.GetFileName(t.TaskDLLPath)), null);
                     usingTask.Condition = "'$(DesignTimeBuild)' != 'true' AND ('$(NugetMsBuildExtensionLoaded)' == '' OR '$(NugetMsBuildExtensionLoaded)' == 'false')";
+                    if (!uniqueCustomTaskDLLs.Contains(t.TaskDLLPath))
+                    {
+                        AddFileToNuSpec(t.TaskDLLPath, string.Format(@"\build\native\private\{0}", Path.GetFileName(t.TaskDLLPath)));
+                        uniqueCustomTaskDLLs.Add(t.TaskDLLPath);
+                    }
                 }
 
                 
