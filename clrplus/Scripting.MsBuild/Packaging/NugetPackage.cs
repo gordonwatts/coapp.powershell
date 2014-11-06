@@ -360,6 +360,14 @@ namespace ClrPlus.Scripting.MsBuild.Packaging {
                     usingTask.Condition = "'$(DesignTimeBuild)' != 'true' AND ('$(NugetMsBuildExtensionLoaded)' == '' OR '$(NugetMsBuildExtensionLoaded)' == 'false')";
                 }
 
+                // Register any custom tasks requested.
+                // TODO: remove the Where clause when we figure out how to have a clean set of tasks here.
+                foreach (var t in CustomTasks.Where(tinfo => tinfo.TaskName != null))
+                {
+                    var usingTask = Targets.Value.Xml.AddUsingTask(t.TaskName, string.Format("$(NuGet-NativeExtensionPath)\\{0}", Path.GetFileName(t.TaskDLLPath)), null);
+                    usingTask.Condition = "'$(DesignTimeBuild)' != 'true' AND ('$(NugetMsBuildExtensionLoaded)' == '' OR '$(NugetMsBuildExtensionLoaded)' == 'false')";
+                }
+
                 
                 // 'declare' the  property in props
                 var pg = Props.Value.Xml.AddPropertyGroup();
