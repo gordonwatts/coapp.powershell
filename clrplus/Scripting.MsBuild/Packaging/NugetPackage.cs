@@ -32,10 +32,27 @@ namespace ClrPlus.Scripting.MsBuild.Packaging {
     using Platform;
     using Powershell.Core;
     using Utility;
+    using ClrPlus.Core.Collections;
 
     internal enum PackageRole {
         @default,
         overlay,
+    }
+
+    internal class CustomTaskInfo
+    {
+        public string TaskName;
+        public string TaskDLLPath;
+
+        public IEnumerable<ToRoute> MemberRoutes
+        {
+            get
+            {
+                string Name = "name";
+                yield return "name".MapTo(() => TaskName, v => TaskName = (string) v);
+                yield return "DLL".MapTo(() => TaskDLLPath, v => TaskDLLPath = (string) v);
+            }
+        }
     }
 
     internal class NugetPackage : IProjectOwner {
@@ -70,6 +87,8 @@ namespace ClrPlus.Scripting.MsBuild.Packaging {
 
         internal Lazy<ProjectPlus> Props;
         internal Lazy<ProjectPlus> Targets;
+
+        internal List<CustomTaskInfo> CustomTasks;
 
         public string ProjectName {
             get {
@@ -111,6 +130,7 @@ namespace ClrPlus.Scripting.MsBuild.Packaging {
            
             Props = new Lazy<ProjectPlus>(() => new ProjectPlus(this, "{0}.props".format(_pkgName)));
             Targets = new Lazy<ProjectPlus>(() => new ProjectPlus(this, "{0}.targets".format(_pkgName)));
+            CustomTasks = new List<CustomTaskInfo>();
 
             _nuSpec.metadata.id = "Package";
             _nuSpec.metadata.version = "1.0.0";
